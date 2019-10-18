@@ -3,6 +3,7 @@
 
 ## Data details
 Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31.
+source: https://open-power-system-data.org/
 
 ## Architecture
 * graphs_layout.py: generic and specific layouts for graph

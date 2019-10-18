@@ -1,5 +1,5 @@
 
-layout_pie = dict(  title = "Graph 2: Production balance",
+layout_pie = dict(  title = "Graph 2: Production balance over the selected timeframe",
                     #margin = dict(l=20, r=20, t=20, b=20),
                     showlegend = True,
                     paper_bgcolor = "rgba(0,0,0,0)",
