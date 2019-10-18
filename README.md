@@ -2,8 +2,7 @@
 **Purpose**: Create a web application displaying German electricity production balance total consumption with viewer and forecast features.
 
 ## Data details
-Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31.
-source: https://open-power-system-data.org/
+Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31 (source: https://open-power-system-data.org/)
 
 ## Architecture
 * graphs_layout.py: generic and specific layouts for graph
@@ -15,6 +14,6 @@ source: https://open-power-system-data.org/
 
 ## Features and graphs
 * Visualization module: timeframe selection
-* Prediction module: starting date and forecasting period inputs
+* Prediction module: starting date and forecasting period inputs - predictions done with a prophet model (https://facebook.github.io/prophet/)
 
 ![logo](images/OPSD_dash.png)
