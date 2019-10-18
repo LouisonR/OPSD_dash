@@ -14,6 +14,6 @@ Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31.
 
 ## Features and graphs
 * Visualization module: timeframe selection
-* Prediction module: starting date ans forecasting period inputs
+* Prediction module: starting date and forecasting period inputs
 
 ![logo](images/OPSD_dash.png)
