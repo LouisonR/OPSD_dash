@@ -14,15 +14,16 @@ Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31 (source
 
 ## Features and graphs
 * Visualization module: timeframe selection
+
   ![logo](images/visu_module.png)
 
 * Prediction module: starting date and forecasting period inputs - predictions done with a prophet model (https://facebook.github.io/prophet/)
 
-  - Prediction viewer for electricity consumption forecast of 30 days
+  - Prediction viewer for electricity consumption forecast over 30 days
   ![logo](images/pred_module_cons.png)
 
-  - Prediction viewer for wind production forecast of 90 days
+  - Prediction viewer for wind production forecast over 90 days
   ![logo](images/pred_module_wind.png)
 
-  - Prediction viewer for solar production forecast of 180 days
+  - Prediction viewer for solar production forecast over 180 days
   ![logo](images/pred_module_solar.png)
