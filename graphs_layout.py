@@ -1,5 +1,5 @@
 
-layout_pie = dict(  title = "Graph 2: Production balance over the selected timeframe",
+layout_pie = dict(  title = "Graph 2: Production balance",
                     #margin = dict(l=20, r=20, t=20, b=20),
                     showlegend = True,
                     paper_bgcolor = "rgba(0,0,0,0)",
@@ -8,7 +8,7 @@ layout_pie = dict(  title = "Graph 2: Production balance over the selected timef
                     autosize = False,)
 
 
-layout_graph = dict(title="Graph 1: Electricity production and consumption",
+layout_graph = dict(title="Graph 1: Electricity production / consumption",
                     autosize=False,
                     paper_bgcolor='rgba(0,0,0,0)',
                     plot_bgcolor='rgba(0,0,0,0)',

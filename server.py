@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 from fbprophet import Prophet
 from graphs_layout import layout_graph, layout_pie
-from html_components import build_header, build_viz_header, build_pred_header, build_graphs, build_traces, build_pie
-from data_process import load_data, create_model, make_prediction, make_pred_df, fill_model_dict
+from html_component import build_header, build_viz_header, build_pred_header, build_graphs, build_options, build_traces, build_pie
+from data_process import load_data, create_model, make_prediction, make_pred_df, fill_model_dict, make_labels
 
 #Inputs
 csv_filepath = 'data/opsd_germany_daily.csv'
@@ -24,10 +24,10 @@ start_date_pred = end_date - relativedelta(years=1)
 
 labels = ["Wind", "Solar", "Consumption"]
 labels_pie = ["Wind", "Solar", "Others"]
-labels_pred = ["Wind forecast", "Solar forecast", "Consumption forecast"]
 colors = ["#424bf5", "#42f551", "#f44242"]
 colors_pred = ["#8D93F9", "#B3FBB9", "#FAB3B3"]
 colors_pie = ["#424bf5", "#42f551", "#dbde47"]
+options = build_options(labels)
 
 model_dict = fill_model_dict(df, labels)
 
@@ -50,7 +50,7 @@ app.layout = html.Div(
         build_header(),
         build_viz_header(start_date, end_date),
         build_graphs(id1="viz_line", id2="viz_balance"),
-        build_pred_header(start_date_pred, end_date),
+        build_pred_header(start_date_pred, end_date, options),
         build_graphs(id1="pred_line", id2="pred_balance"),
     ]
 )
@@ -76,23 +76,24 @@ def update_viz_graph(n_clicks, starting_date, ending_date):
 
     """
     df_sel = df.loc[starting_date:ending_date]
-    trace_consumption, trace_solar, trace_wind = build_traces(df_sel, labels, colors)
+    traces = build_traces(df_sel, labels, colors)
     trace_pie = build_pie(df_sel, labels_pie, colors_pie)
-    figure_consumption = dict(data=[trace_consumption, trace_solar, trace_wind], layout=layout_graph)
-    figure_pie = dict(data=[trace_pie], layout=layout_pie)
+    figure_consumption = dict(data=traces, layout=layout_graph)
+    figure_pie = dict(data=trace_pie, layout=layout_pie)
     return (figure_consumption, figure_pie)
 
 #Prediction callback
 @app.callback(  [Output("pred_line", "figure"), Output("pred_balance", "figure")],
                 [Input('submit-pred-button', "n_clicks")],
-                [State('forecasting-period', "value"),State('starting-date-pred', "date")],
+                [State('var-id', "value"), State('forecasting-period', "value"),State('starting-date-pred', "date")],
              )
 
-def update_pred_graph(n_clicks, periods, starting_date):
+def update_pred_graph(n_clicks, var_id, periods, starting_date):
     """ Returns a figure type: dict(data, layout).
 
     Parameters:
         n_clicks (int): 0 | 1
+        var_id (int): variable selection 0 | 1 | 2
         periods (string): the period in days we want to predict
         starting_date (datetime): the starting date of the timeframe selected
 
@@ -101,12 +102,19 @@ def update_pred_graph(n_clicks, periods, starting_date):
 
     """
     periods = int(periods)
+    label = labels[var_id]
+    labels_pred = make_labels(label)
+
     df_hist = df.loc[starting_date:]
     df_pred = make_pred_df(periods, model_dict)
+    df_pred = df_pred.loc[starting_date:]
     df_full = pd.concat([df_hist, df_pred], axis=0, sort=True)
-    trace_consumption, trace_solar, trace_wind = build_traces(df_hist, labels, colors)
-    trace_consumption_pred, trace_solar_pred, trace_wind_pred = build_traces(df_pred, labels_pred, colors_pred)
+
+    traces_viz = build_traces(df_hist, [label], [colors[var_id]])
+    traces_pred = build_traces(df_pred, labels_pred, 3*[colors_pred[var_id]])
     trace_pie = build_pie(df_full, labels_pie, colors_pie)
-    figure_consumption = dict(data=[trace_consumption, trace_solar, trace_wind, trace_consumption_pred, trace_solar_pred, trace_wind_pred], layout=layout_graph)
-    figure_pie = dict(data=[trace_pie], layout=layout_pie)
+
+    figure_consumption = dict(data= traces_viz + traces_pred, layout=layout_graph)
+    figure_pie = dict(data=trace_pie, layout=layout_pie)
+
     return (figure_consumption, figure_pie)

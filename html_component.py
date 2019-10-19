@@ -71,12 +71,23 @@ def build_viz_header(start_date, end_date):
             )
 
 
-def build_pred_header(start_date, end_date):
+def build_pred_header(start_date, end_date, options):
     return html.Div(
                 id="header_pred",
                 children=[
                     html.Span(children=[" "]),
                     html.H3("   2. Prediction Module"),
+                    html.Div(id="var_dropdown",
+                            children=[
+                                        html.H5("Select the variable you want to display"),
+                                        dcc.Dropdown(
+                                                        id='var-id',
+                                                        style={'width': '390px'},
+                                                        options=options,
+                                                        value=2,
+                                                    )
+                                    ],
+                                        ),
                     html.H5("Period (in days) you want to forecast"),
                     dcc.DatePickerSingle(   id='starting-date-pred',
                                             min_date_allowed=start_date,
@@ -93,28 +104,31 @@ def build_pred_header(start_date, end_date):
             )
 
 
+def build_options(labels):
+    """ Returns an option list.
 
+    Parameters:
+        site_access_lst (list): list of tuple (site_id, site_name)
 
-def build_traces(df_sel, labels, colors):
+    Returns:
+        options_list (list): list of dict {'label', 'value'}
+
+    """
+    return [{'label': label, 'value': i} for i, label in enumerate(labels)]
+
+def build_traces(df, labels, colors):
     #define the different traces
-    trace_consumption = go.Scatter( x=list(df_sel.index),
-                                    y=list(df_sel.Consumption),
-                                    name=labels[0],
-                                    line=dict(color=colors[0]))
-
-    trace_solar = go.Scatter(   x=list(df_sel.index),
-                                y=list(df_sel.Solar),
-                                name=labels[1],
-                                line=dict(color=colors[1]))
-
-    trace_wind = go.Scatter(   x=list(df_sel.index),
-                                y=list(df_sel.Wind),
-                                name=labels[2],
-                                line=dict(color=colors[2]))
-
-    return (trace_consumption, trace_solar, trace_wind)
+    traces = []
+    for i, label in enumerate(labels):
+        traces.append(
+                        go.Scatter( x=list(df.index),
+                                    y=list(df[label]),
+                                    name=label,
+                                    line=dict(color=colors[i]))
+                )
+    return traces
 
 def build_pie(df_sel, labels, colors):
     values = [df_sel.Wind.sum(), df_sel.Solar.sum(), df_sel.Consumption.sum()-df_sel.Wind.sum()-df_sel.Solar.sum()]
     trace_pie = go.Pie(labels=labels, values=values, hole=.3, marker_colors=colors)
-    return trace_pie
+    return [trace_pie]

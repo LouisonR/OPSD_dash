@@ -18,6 +18,10 @@ def load_data(csv_filepath, start_date):
     df = df.loc[start_date:]
     return df
 
+def make_labels(label):
+    return [label + "_forecast", label + "_upper", label + "_lower"]
+
+
 def create_model(df, column_name):
     """ Returns a prophet model.
 
@@ -30,7 +34,7 @@ def create_model(df, column_name):
     df_input = pd.DataFrame(df[column_name].dropna()).reset_index().rename(columns={'Date': 'ds', column_name: 'y'})
     #Instanciation and fitting of the model
     model = Prophet(interval_width=0.95)
-    model.fit(df_input)
+    model.fit(df_input[-1000:])
     return model
 
 def fill_model_dict(df, label_lst):
@@ -50,7 +54,7 @@ def make_prediction(model, periods):
         forecast: pd.DataFrame
     """
     periods = int(periods)
-    forecast = model.make_future_dataframe(periods=periods, freq='D', include_history=False)
+    forecast = model.make_future_dataframe(periods=periods, freq='D', include_history=True)
     forecast = model.predict(forecast)
     return forecast
 
@@ -58,6 +62,8 @@ def make_pred_df(periods, model_dict):
     df_pred = pd.DataFrame()
     for key in model_dict.keys():
         forecast = make_prediction(model_dict[key], periods)
-        df_pred[key] = forecast.yhat
+        df_pred[key + "_forecast"] = forecast.yhat
+        df_pred[key + "_upper"] = forecast.yhat_upper
+        df_pred[key + "_lower"] = forecast.yhat_lower.apply(lambda x: max(x, 0))
     df_pred.index = forecast.ds
     return df_pred
