@@ -14,7 +14,7 @@ Wind, Solar and Consumption in Germany from 2006-01-01 until 20017-12-31 (source
 
 ## Features and graphs
 * Visualization module: timeframe selection
-![logo](images/vis_module.png)
+![logo](images/visu_module.png)
 * Prediction module: starting date and forecasting period inputs - predictions done with a prophet model (https://facebook.github.io/prophet/)
 
 ![logo](images/pred_module_cons.png)
