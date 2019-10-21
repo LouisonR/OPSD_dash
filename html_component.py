@@ -71,7 +71,7 @@ def build_viz_header(start_date, end_date):
             )
 
 
-def build_pred_header(start_date, end_date, options):
+def build_pred_header(start_date, end_date, end_date_pred, options):
     return html.Div(
                 id="header_pred",
                 children=[
@@ -96,7 +96,13 @@ def build_pred_header(start_date, end_date, options):
                                             date=str(start_date)
                                             ),
                     html.Span(children=[" "]),
-                    dcc.Input(id="forecasting-period", value="90", type="text", style={'width': '130px'}),
+                    #dcc.Input(id="forecasting-period", value="90", type="text", style={'width': '130px'}),
+                    dcc.DatePickerSingle(   id='ending-date-pred',
+                                            min_date_allowed=end_date,
+                                            max_date_allowed=end_date_pred,
+                                            initial_visible_month=end_date,
+                                            date=str(end_date)
+                                            ),
                     html.Span(children=[" "]),
                     html.Button(id="submit-pred-button", n_clicks=0, children="Submit")
                 ],

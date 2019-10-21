@@ -16,12 +16,6 @@ from data_process import load_data, create_model, make_prediction, make_pred_df,
 #Inputs
 csv_filepath = 'data/opsd_germany_daily.csv'
 
-#Data
-start_date = dt.today() - relativedelta(years=7)
-df = load_data(csv_filepath, start_date)
-end_date = df.index[-1]
-start_date_pred = end_date - relativedelta(years=1)
-
 labels = ["Wind", "Solar", "Consumption"]
 labels_pie = ["Wind", "Solar", "Others"]
 colors = ["#424bf5", "#42f551", "#f44242"]
@@ -29,7 +23,17 @@ colors_pred = ["#8D93F9", "#B3FBB9", "#FAB3B3"]
 colors_pie = ["#424bf5", "#42f551", "#dbde47"]
 options = build_options(labels)
 
+#Data
+#Visualization module
+start_date_viz = dt.today() - relativedelta(years=7)
+df = load_data(csv_filepath, start_date_viz)
+end_date_viz = df.index[-1]
+#Prediction module
+periods = 365
+start_date_pred = end_date_viz - relativedelta(years=1)
+end_date_pred = end_date_viz + relativedelta(days=periods)
 model_dict = fill_model_dict(df, labels)
+df_forecast = make_pred_df(periods, model_dict)
 
 #css links
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css","/assets/style.css",]
@@ -48,9 +52,9 @@ server = app.server
 app.layout = html.Div(
     [
         build_header(),
-        build_viz_header(start_date, end_date),
+        build_viz_header(start_date_viz, end_date_viz),
         build_graphs(id1="viz_line", id2="viz_balance"),
-        build_pred_header(start_date_pred, end_date, options),
+        build_pred_header(start_date_pred, end_date_viz, end_date_pred, options),
         build_graphs(id1="pred_line", id2="pred_balance"),
     ]
 )
@@ -76,19 +80,22 @@ def update_viz_graph(n_clicks, starting_date, ending_date):
 
     """
     df_sel = df.loc[starting_date:ending_date]
+
     traces = build_traces(df_sel, labels, colors)
     trace_pie = build_pie(df_sel, labels_pie, colors_pie)
+
     figure_consumption = dict(data=traces, layout=layout_graph)
     figure_pie = dict(data=trace_pie, layout=layout_pie)
+
     return (figure_consumption, figure_pie)
 
 #Prediction callback
 @app.callback(  [Output("pred_line", "figure"), Output("pred_balance", "figure")],
                 [Input('submit-pred-button', "n_clicks")],
-                [State('var-id', "value"), State('forecasting-period', "value"),State('starting-date-pred', "date")],
+                [State('var-id', "value"), State('starting-date-pred', "date"), State('ending-date-pred', "date")],
              )
 
-def update_pred_graph(n_clicks, var_id, periods, starting_date):
+def update_pred_graph(n_clicks, var_id, starting_date, ending_date):
     """ Returns a figure type: dict(data, layout).
 
     Parameters:
@@ -101,20 +108,18 @@ def update_pred_graph(n_clicks, var_id, periods, starting_date):
         figures: tuple of figure (dict)
 
     """
-    periods = int(periods)
     label = labels[var_id]
     labels_pred = make_labels(label)
 
     df_hist = df.loc[starting_date:]
-    df_pred = make_pred_df(periods, model_dict)
-    df_pred = df_pred.loc[starting_date:]
+    df_pred = df_forecast.loc[starting_date:ending_date]
     df_full = pd.concat([df_hist, df_pred], axis=0, sort=True)
 
     traces_viz = build_traces(df_hist, [label], [colors[var_id]])
     traces_pred = build_traces(df_pred, labels_pred, 3*[colors_pred[var_id]])
     trace_pie = build_pie(df_full, labels_pie, colors_pie)
 
-    figure_consumption = dict(data= traces_viz + traces_pred, layout=layout_graph)
+    figure_consumption = dict(data=traces_viz + traces_pred, layout=layout_graph)
     figure_pie = dict(data=trace_pie, layout=layout_pie)
 
     return (figure_consumption, figure_pie)

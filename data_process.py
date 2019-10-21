@@ -59,11 +59,11 @@ def make_prediction(model, periods):
     return forecast
 
 def make_pred_df(periods, model_dict):
-    df_pred = pd.DataFrame()
+    df_output = pd.DataFrame()
     for key in model_dict.keys():
         forecast = make_prediction(model_dict[key], periods)
-        df_pred[key + "_forecast"] = forecast.yhat
-        df_pred[key + "_upper"] = forecast.yhat_upper
-        df_pred[key + "_lower"] = forecast.yhat_lower.apply(lambda x: max(x, 0))
-    df_pred.index = forecast.ds
-    return df_pred
+        df_output[key + "_forecast"] = forecast.yhat
+        df_output[key + "_upper"] = forecast.yhat_upper
+        df_output[key + "_lower"] = forecast.yhat_lower.apply(lambda x: max(x, 0))
+    df_output.index = forecast.ds
+    return df_output
